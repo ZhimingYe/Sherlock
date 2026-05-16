@@ -1,0 +1,149 @@
+@import "@vscode/codicons/dist/codicon.css";
+@import "tailwindcss";
+
+:root {
+	--background: var(--vscode-sideBar-background, #1e1e1e);
+	--foreground: var(--vscode-sideBar-foreground, #cccccc);
+	--muted-foreground: color-mix(
+		in srgb,
+		var(--vscode-foreground, #cccccc) 55%,
+		var(--vscode-sideBar-background, #1e1e1e)
+	);
+	--accent: var(--vscode-list-hoverBackground, #2a2d2e);
+	--accent-foreground: var(--vscode-list-hoverForeground, #cccccc);
+	--selected: var(--vscode-list-activeSelectionBackground, #094771);
+	--selected-foreground: var(--vscode-list-activeSelectionForeground, #ffffff);
+	--input: var(--vscode-input-background, #3c3c3c);
+	--input-foreground: var(--vscode-input-foreground, #cccccc);
+	--input-border: var(--vscode-input-border, #3c3c3c);
+	--focus-border: var(--vscode-focusBorder, #007fd4);
+	--border: var(--vscode-sideBarSectionHeader-border, #444444);
+	--error-foreground: var(--vscode-errorForeground, #f48771);
+	--icon-foreground: var(--vscode-icon-foreground, #c5c5c5);
+}
+
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-selected: var(--selected);
+	--color-selected-foreground: var(--selected-foreground);
+	--color-input: var(--input);
+	--color-input-foreground: var(--input-foreground);
+	--color-input-border: var(--input-border);
+	--color-focus-border: var(--focus-border);
+	--color-border: var(--border);
+	--color-error-foreground: var(--error-foreground);
+	--color-icon-foreground: var(--icon-foreground);
+	--font-sans:
+		var(--vscode-font-family, system-ui), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	@apply overflow-hidden bg-background font-sans text-foreground;
+	font-size: var(--vscode-font-size, 13px);
+}
+
+.sherlock-icon {
+	color: var(--vscode-icon-foreground);
+	font-size: 16px;
+	height: 16px;
+	line-height: 16px;
+	width: 16px;
+}
+
+.sherlock-icon-file {
+	color: var(--vscode-symbolIcon-fileForeground, var(--vscode-icon-foreground));
+}
+
+.sherlock-icon-folder {
+	color: var(--vscode-symbolIcon-folderForeground, var(--vscode-icon-foreground));
+}
+
+.sherlock-icon-r {
+	align-items: center;
+	border: 1px solid currentColor;
+	border-radius: 3px;
+	display: inline-flex;
+	font-size: 10px;
+	font-weight: 700;
+	justify-content: center;
+	line-height: 14px;
+}
+
+.sherlock-resize-handle {
+	align-self: stretch;
+	cursor: col-resize;
+	display: flex;
+	justify-content: center;
+	min-width: 8px;
+	touch-action: none;
+}
+
+.sherlock-resize-handle::before {
+	background: var(--border);
+	content: "";
+	height: 100%;
+	width: 1px;
+}
+
+.sherlock-resize-handle:hover::before,
+.sherlock-resize-handle:active::before {
+	background: var(--focus-border);
+	width: 2px;
+}
+
+.sherlock-scroll-fade-left,
+.sherlock-scroll-fade-right {
+	bottom: 0;
+	pointer-events: none;
+	position: absolute;
+	top: 0;
+	width: 28px;
+}
+
+.sherlock-scroll-fade-left {
+	background: linear-gradient(
+		to right,
+		var(--background) 0%,
+		var(--background) 30%,
+		transparent 100%
+	);
+	left: 0;
+}
+
+.sherlock-scroll-fade-right {
+	background: linear-gradient(
+		to left,
+		var(--background) 0%,
+		var(--background) 30%,
+		transparent 100%
+	);
+	right: 0;
+}
+
+.sherlock-path-scroll-button {
+	align-items: center;
+	background: var(--background);
+	border: none;
+	bottom: 1px;
+	color: var(--icon-foreground);
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	position: absolute;
+	top: 1px;
+	width: 22px;
+	z-index: 1;
+}
+
+.sherlock-path-scroll-button:hover {
+	background: var(--accent);
+	color: var(--accent-foreground);
+}

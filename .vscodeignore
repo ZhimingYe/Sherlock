@@ -1,0 +1,14 @@
+.git/**
+.github/**
+.vscode/**
+node_modules/**
+src/**
+*.tsbuildinfo
+*.vsix
+esbuild.ts
+tailwind.config.ts
+tsconfig*.json
+package-lock.json
+AGENTS.md
+CLAUDE.md
+.oxfmtrc.json

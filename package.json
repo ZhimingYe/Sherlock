@@ -1,0 +1,64 @@
+{
+  "name": "sherlock",
+  "displayName": "Sherlock",
+  "description": "A fast, flat directory browser for VS Code. Browse anywhere on the filesystem with keyboard-driven navigation.",
+  "version": "0.1.0",
+  "license": "SEE LICENSE IN LICENSE",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sherlock",
+          "title": "Sherlock",
+          "icon": "images/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "sherlock": [
+        {
+          "type": "webview",
+          "id": "sherlock.directoryView",
+          "name": "Sherlock"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "tsx esbuild.ts --production",
+    "watch": "tsx esbuild.ts --watch",
+    "clean": "rm -rf dist",
+    "check-types": "tsc --noEmit -p tsconfig.server.json && tsc --noEmit -p tsconfig.client.json",
+    "lint": "oxlint -c ../../oxlint.config.json src"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@types/vscode": "^1.100.0",
+    "@types/vscode-webview": "^1.57.5",
+    "@vscode/codicons": "^0.0.45",
+    "clsx": "^2.1.1",
+    "esbuild": "^0.25.0",
+    "esbuild-plugin-tailwindcss": "^2.1.0",
+    "lucide-react": "^0.552.0",
+    "oxfmt": "^0.41.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.16",
+    "tsx": "^4.19.4",
+    "typescript": "^6.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ZhimingYe/Sherlock"
+  }
+}

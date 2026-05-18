@@ -815,7 +815,7 @@ export function FileTable({
 							>
 								<div className="flex min-w-0 items-center gap-1.5 pr-2">
 									<FileIcon entry={entry} />
-									<span className="truncate">{entry.name}</span>
+									<span className="truncate text-[0.92em]">{entry.name}</span>
 								</div>
 								<span />
 								<span className="min-w-0 truncate text-right text-[0.85em] text-muted-foreground">

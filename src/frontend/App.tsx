@@ -315,6 +315,7 @@ export function App() {
 				entries={sortedFilteredEntries}
 				parentUri={parentUri}
 				loading={loading}
+				currentPath={currentPath || currentUri}
 				sortColumn={sortColumn}
 				sortDirection={sortDirection}
 				onSort={handleSort}

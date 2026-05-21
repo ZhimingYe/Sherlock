@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { CornerUpLeft, ArrowUp, ArrowDown } from "lucide-react";
+import { CornerUpLeft, ArrowUp, ArrowDown, Loader } from "lucide-react";
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 
 import type { DirectoryEntry, SortColumn, SortDirection } from "./types";
@@ -8,6 +8,7 @@ type FileTableProps = {
 	entries: DirectoryEntry[];
 	parentUri: string | null;
 	loading: boolean;
+	currentPath: string;
 	sortColumn: SortColumn;
 	sortDirection: SortDirection;
 	onSort: (column: SortColumn) => void;
@@ -392,8 +393,10 @@ export function FileTable({
 	onCopyPath,
 	onCopyText,
 	onOpenDirectoryInTerminal,
+	currentPath,
 }: FileTableProps) {
 	const [selectedIndex, setSelectedIndex] = useState(0);
+	const [slowHint, setSlowHint] = useState(false);
 	const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
 	const [columnWidths, setColumnWidths] = useState<ColumnWidths>(INITIAL_COLUMN_WIDTHS);
 	const [scrollTop, setScrollTop] = useState(0);
@@ -446,6 +449,15 @@ export function FileTable({
 		const resizeObserver = new ResizeObserver(updateViewportHeight);
 		resizeObserver.observe(listElement);
 		return () => resizeObserver.disconnect();
+	}, [loading]);
+
+	useEffect(() => {
+		if (!loading) {
+			setSlowHint(false);
+			return;
+		}
+		const timer = setTimeout(() => setSlowHint(true), 3000);
+		return () => clearTimeout(timer);
 	}, [loading]);
 
 	useEffect(() => {
@@ -685,7 +697,22 @@ export function FileTable({
 	const now = new Date();
 
 	if (loading && entries.length === 0) {
-		return <div className="p-2 text-center text-muted-foreground">Loading...</div>;
+		return (
+			<div className="flex flex-col items-center justify-center gap-3 p-6 text-muted-foreground">
+				<Loader className="size-5 animate-spin" />
+				<div className="text-center text-[0.9em]">
+					<p>Reading directory…</p>
+					<p className="mt-0.5 max-w-[90%] truncate text-[0.85em] opacity-70">
+						{currentPath}
+					</p>
+				</div>
+				{slowHint && (
+					<p className="text-center text-[0.8em] opacity-60">
+						Still working — remote filesystems may take longer.
+					</p>
+				)}
+			</div>
+		);
 	}
 
 	const columnHeaderClass =

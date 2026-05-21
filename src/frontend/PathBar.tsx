@@ -133,6 +133,7 @@ export function PathBar({
 							<button
 								className="max-w-40 cursor-pointer truncate rounded-sm border-none bg-transparent px-1 py-0.5 font-[family-name:inherit] text-[length:inherit] text-foreground hover:bg-accent"
 								onClick={() => onNavigate(segment.uri)}
+								title={segment.label}
 							>
 								{segment.label}
 							</button>

@@ -397,6 +397,7 @@ export function FileTable({
 }: FileTableProps) {
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [slowHint, setSlowHint] = useState(false);
+	const [tooltip, setTooltip] = useState<{ text: string; x: number; y: number } | null>(null);
 	const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
 	const [columnWidths, setColumnWidths] = useState<ColumnWidths>(INITIAL_COLUMN_WIDTHS);
 	const [scrollTop, setScrollTop] = useState(0);
@@ -541,6 +542,7 @@ export function FileTable({
 
 	const selectRow = useCallback((index: number) => {
 		setContextMenu(null);
+		setTooltip(null);
 		setSelectedIndex(index);
 	}, []);
 
@@ -685,6 +687,7 @@ export function FileTable({
 	}, [items.length, selectedIndex]);
 
 	const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+		setTooltip(null);
 		pendingScrollTopRef.current = e.currentTarget.scrollTop;
 		if (scrollFrameRef.current !== null) return;
 
@@ -842,7 +845,7 @@ export function FileTable({
 							>
 								<div className="flex min-w-0 items-center gap-1.5 pr-2">
 									<FileIcon entry={entry} />
-									<span className="truncate text-[0.92em]" title={entry.name}>{entry.name}</span>
+									<span className="truncate text-[0.92em]" onMouseEnter={(e) => setTooltip({ text: entry.name, x: e.clientX, y: e.clientY })} onMouseLeave={() => setTooltip(null)}>{entry.name}</span>
 								</div>
 								<span />
 								<span className="min-w-0 truncate text-right text-[0.85em] text-muted-foreground">
@@ -857,7 +860,15 @@ export function FileTable({
 					})}
 				</div>
 			)}
-			{contextMenu && (
+			{tooltip && (
+					<div
+						className="pointer-events-none fixed z-40 max-w-xs rounded-sm border border-border bg-background px-2 py-1 text-[0.85em] text-foreground shadow-md"
+						style={{ left: Math.min(tooltip.x + 10, window.innerWidth - 280), top: tooltip.y - 30 }}
+					>
+						{tooltip.text}
+					</div>
+				)}
+				{contextMenu && (
 				<div
 					className="fixed z-50 min-w-40 border border-border bg-background py-1 text-foreground shadow-lg"
 					style={{ left: contextMenu.x, top: contextMenu.y }}

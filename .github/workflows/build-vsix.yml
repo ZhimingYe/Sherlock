@@ -1,0 +1,98 @@
+name: Build VSIX
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - package.json
+      - .github/workflows/build-vsix.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-vsix:
+    name: Build VSIX
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check package version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          version="$(node -p "require('./package.json').version")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+            echo "Manual run: building VSIX for $version."
+            exit 0
+          fi
+
+          before="${{ github.event.before }}"
+          previous=""
+
+          if git cat-file -e "$before:package.json" 2>/dev/null; then
+            previous="$(
+              git show "$before:package.json" \
+                | node -e "const fs = require('fs'); const input = fs.readFileSync(0, 'utf8'); process.stdout.write(JSON.parse(input).version || '');"
+            )"
+          fi
+
+          echo "previous_version=$previous" >> "$GITHUB_OUTPUT"
+
+          if [[ -n "$previous" && "$previous" == "$version" ]]; then
+            echo "should_build=false" >> "$GITHUB_OUTPUT"
+            echo "package.json version is still $version; skipping VSIX build."
+          else
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+            echo "Version bump detected: ${previous:-unknown} -> $version."
+          fi
+
+      - name: Setup Node.js
+        if: steps.version.outputs.should_build == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.version.outputs.should_build == 'true'
+        run: npm ci
+
+      - name: Check types
+        if: steps.version.outputs.should_build == 'true'
+        run: npm run check-types
+
+      - name: Build extension
+        if: steps.version.outputs.should_build == 'true'
+        run: npm run build
+
+      - name: Package VSIX
+        if: steps.version.outputs.should_build == 'true'
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          filename="sherlock-${{ steps.version.outputs.version }}.vsix"
+          npx --yes @vscode/vsce package --no-dependencies --out "$filename"
+          echo "filename=$filename" >> "$GITHUB_OUTPUT"
+
+      - name: Upload VSIX artifact
+        if: steps.version.outputs.should_build == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.filename }}
+          path: ${{ steps.package.outputs.filename }}
+          if-no-files-found: error
+          retention-days: 30

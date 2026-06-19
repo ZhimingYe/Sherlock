@@ -206,6 +206,7 @@ class SherlockViewProvider implements vscode.WebviewViewProvider {
 	private latestRequestId = -1;
 	private watcher: vscode.FileSystemWatcher | undefined;
 	private debounceTimer: ReturnType<typeof setTimeout> | undefined;
+	private currentDirectoryUri = getInitialDirectoryUri();
 
 	readonly resolveWebviewView: vscode.WebviewViewProvider["resolveWebviewView"] =
 		this.onResolveWebviewView.bind(this);
@@ -271,7 +272,7 @@ class SherlockViewProvider implements vscode.WebviewViewProvider {
 	private postInitialDirectory(webview: vscode.Webview): void {
 		postToWebview(webview, {
 			type: "initialDirectory",
-			uri: getInitialDirectoryUri().toString(),
+			uri: this.currentDirectoryUri.toString(),
 		});
 	}
 
@@ -315,11 +316,7 @@ class SherlockViewProvider implements vscode.WebviewViewProvider {
 		}
 
 		if (!openWithPicker) {
-			try {
-				await vscode.commands.executeCommand("vscode.open", uri);
-			} catch {
-				// The default opener may reject unsupported or unavailable resources.
-			}
+			await this.openResourcePinned(uri);
 			return;
 		}
 
@@ -332,6 +329,22 @@ class SherlockViewProvider implements vscode.WebviewViewProvider {
 			} catch {
 				// Keep parity with the normal open path: no user-facing webview error.
 			}
+		}
+	}
+
+	private async openResourcePinned(uri: vscode.Uri): Promise<void> {
+		try {
+			await vscode.commands.executeCommand("vscode.open", uri, { preview: false });
+			return;
+		} catch {
+			// Some resources need the text document path instead of the generic opener.
+		}
+
+		try {
+			const document = await vscode.workspace.openTextDocument(uri);
+			await vscode.window.showTextDocument(document, { preview: false });
+		} catch {
+			// The default opener may reject unsupported or unavailable resources.
 		}
 	}
 
@@ -385,6 +398,7 @@ class SherlockViewProvider implements vscode.WebviewViewProvider {
 			}
 
 			this.setupWatcher(directoryUri, webview);
+			this.currentDirectoryUri = directoryUri;
 
 			postToWebview(webview, {
 				type: "directoryContents",

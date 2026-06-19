@@ -2,7 +2,7 @@
   "name": "sherlock",
   "displayName": "Sherlock",
   "description": "A fast, flat directory browser for VS Code. Browse anywhere on the filesystem with keyboard-driven navigation.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "license": "SEE LICENSE IN LICENSE",
   "engines": {
     "vscode": "^1.100.0"

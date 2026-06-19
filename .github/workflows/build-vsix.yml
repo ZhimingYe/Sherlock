@@ -6,11 +6,10 @@ on:
       - main
     paths:
       - package.json
-      - .github/workflows/build-vsix.yml
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-vsix:
@@ -88,11 +87,25 @@ jobs:
           npx --yes @vscode/vsce package --no-dependencies --out "$filename"
           echo "filename=$filename" >> "$GITHUB_OUTPUT"
 
-      - name: Upload VSIX artifact
+      - name: Publish GitHub Release
         if: steps.version.outputs.should_build == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.package.outputs.filename }}
-          path: ${{ steps.package.outputs.filename }}
-          if-no-files-found: error
-          retention-days: 30
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          FILENAME: ${{ steps.package.outputs.filename }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag="v$VERSION"
+          title="Sherlock $VERSION"
+          notes="Automated VSIX build for Sherlock $VERSION."
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "$FILENAME" --clobber
+          else
+            gh release create "$tag" "$FILENAME" \
+              --target "$GITHUB_SHA" \
+              --title "$title" \
+              --notes "$notes"
+          fi
